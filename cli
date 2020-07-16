@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2019 Chris Osterwood for Capable Robot Components
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+import os, sys, inspect
+import time
+import argparse
+import logging
+
+import click
+import adafruit_tca9548a
+
+from capablerobot_camera import *
+
+def setup_logging():
+    fmtstr = '%(asctime)s | %(filename)25s:%(lineno)4d %(funcName)20s() | %(levelname)7s | %(message)s'
+    formatter = logging.Formatter(fmtstr)
+
+    handler   = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+
+@click.group()
+@click.option('--verbose', default=False, is_flag=True, help='Increase logging level.')
+def cli(verbose):
+    global pipe
+
+    if verbose:
+        setup_logging()
+        logging.debug("Logging Setup")
+
+    i2c = DirectI2C(bus=2)
+    tca = adafruit_tca9548a.TCA9548A(i2c)
+    pipe = Pipeline(tca[0])
+
+    print()
+
+@cli.command()
+def init():
+    """Configure hardware"""
+    pipe.init()
+
+@cli.command()
+def poc_status():
+    """Print Power over Coax (PoC) Status"""
+    pipe.poc_info()   
+
+@cli.command()
+def loop_status():
+    """Print system status in a loop"""
+    pipe.loop_status()  
+
+def main():
+    cli()
+    
+if __name__ == '__main__':
+    main()

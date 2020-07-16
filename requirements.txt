@@ -1,0 +1,4 @@
+click
+adafruit-blinka
+adafruit-circuitpython-busdevice
+adafruit-circuitpython-tca9548a
