@@ -83,7 +83,7 @@ class Pipeline:
         poc_enable = [False, False, False, False]
         for channel in self.channels:
             poc_enable[channel] = True
-        print(poc_enable)
+        
         self.deser.poc(outputs=poc_enable)
 
         for channel in self.channels:
